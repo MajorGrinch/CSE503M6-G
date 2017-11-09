@@ -1,0 +1,24 @@
+{
+  "name": "cse503m6-g",
+  "version": "1.0.0",
+  "description": "group work for CSE 503 Module 6",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MajorGrinch/CSE503M6-G.git"
+  },
+  "keywords": [
+    "node.js",
+    "online",
+    "chat"
+  ],
+  "author": "Kevin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MajorGrinch/CSE503M6-G/issues"
+  },
+  "homepage": "https://github.com/MajorGrinch/CSE503M6-G#readme"
+}
