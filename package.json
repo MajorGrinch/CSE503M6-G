@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/MajorGrinch/CSE503M6-G/issues"
   },
+  "dependencies": {
+    "mime": "~1.2.11",
+    "socket.io": "~0.9.16"
+  },
   "homepage": "https://github.com/MajorGrinch/CSE503M6-G#readme"
 }
