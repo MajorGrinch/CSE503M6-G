@@ -13,21 +13,58 @@
 <body>
     <div id="wrapper">
         <h1>Please login</h1>
-        <div id="loginForm">
-            <form>
+        <div id="login_wrapper">
+            <form id="loginForm">
                 <div class="form-group">
                     <label for="input_username_box" class="control-label">Username</label>
                     <input type="text" name="input_username" id="input_username_box" />
                 </div>
                 <div class="form-group">
-                	<label for="input_password_box">Password</label>
+                    <label for="input_password_box">Password</label>
                     <input type="text" name="input_password" id="input_password_box">
                 </div>
             </form>
-            <button class="btn btn-primary">Sign in</button>
-            <button class="btn btn-danger">Sign up</button>
+            <button class="btn btn-primary" id="signin_btn">Sign in</button>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target=".bs-example-modal-sm">Sign up</button>
         </div>
     </div>
+    <div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Registration</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="signup_form">
+                        <div class="form-group">
+                            <label for="new_username" class="control-label">Username:</label>
+                            <input type="text" class="form-control" name="username" id="new_username" />
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="control-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="new_password" />
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_pwd" class="control-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_pwd" />
+                        </div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert" id="confirmation_error">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            Please enter the same in confirm password
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="signup_btn">Sign up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/login.js"></script>
 </body>
 
 </html>

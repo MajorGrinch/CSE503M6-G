@@ -21,10 +21,14 @@
     "url": "https://github.com/MajorGrinch/CSE503M6-G/issues"
   },
   "dependencies": {
+    "bcrypt": "^1.0.3",
+    "finalhandler": "^1.1.0",
+    "formidable": "^1.1.1",
     "mime": "2.0.3",
-    "socket.io": "2.0.4",
+    "mysql2": "^1.4.2",
+    "router": "^1.3.2",
     "sequelize": "4.22.5",
-    "mysql": "2.15.0"
+    "socket.io": "2.0.4"
   },
   "homepage": "https://github.com/MajorGrinch/CSE503M6-G#readme"
 }
