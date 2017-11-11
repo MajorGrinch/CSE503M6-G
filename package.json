@@ -22,7 +22,9 @@
   },
   "dependencies": {
     "mime": "~1.2.11",
-    "socket.io": "~0.9.16"
+    "socket.io": "~0.9.16",
+    "sequelize": "~4.22.5",
+    "mysql": "2.15.0"
   },
   "homepage": "https://github.com/MajorGrinch/CSE503M6-G#readme"
 }
