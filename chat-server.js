@@ -14,6 +14,8 @@ var http = require('http'),
 
 const saltRounds = 10;
 var router = Router();
+
+var rooms = { '330': [23, 24] };
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp) {
     if (req.method.toLowerCase() == 'post') {
@@ -110,6 +112,17 @@ router.post('/login', function(req, res) {
 
         })();
     });
+});
+
+router.post('/getChatRooms', function(req, res) {
+    console.log('process get chat rooms');
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.write(JSON.stringify(rooms));
+        res.end();
+    });
+
 });
 
 

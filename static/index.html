@@ -13,21 +13,23 @@
     var socketio = io.connect();
     socketio.on("message_to_client", function(data) {
         //Append an HR thematic break and the escaped HTML of the new message
-        document.getElementById("chatlog").appendChild(document.createElement("hr"));
-        document.getElementById("chatlog").appendChild(document.createTextNode(data['message']));
+        document.getElementById("chat_log").appendChild(document.createElement("hr"));
+        document.getElementById("chat_log").appendChild(document.createTextNode(data['message']));
+        chat2Bottom();
     });
 
     function sendMessage() {
         var msg = document.getElementById("message_input").value;
         socketio.emit("message_to_server", { message: msg });
+        document.getElementById("message_input").value = '';
     }
     </script>
 </head>
 
 <body>
     <div id="wrapper">
-        <h1>Please login</h1>
         <div id="login_wrapper">
+            <h1>Please login</h1>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="input_username_box" class="control-label">Username</label>
@@ -41,11 +43,17 @@
             <button class="btn btn-primary" id="signin_btn">Sign in</button>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target=".bs-example-modal-sm">Sign up</button>
         </div>
-    </div>
-    <div id="chat_wrapper">
-        <input type="text" id="message_input" />
-        <button onclick="sendMessage()">send</button>
-        <div id="chatlog"></div>
+        <div id="mainchat">
+            <div id="chat_log"></div>
+            <div id="chat_input">
+                <textarea rows="4" cols="80" id="message_input"></textarea>
+                <br/>
+                <button onclick="sendMessage()">send</button>
+            </div>
+        </div>
+        <div id="chat_rooms">
+            
+        </div>
     </div>
     <div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
@@ -84,6 +92,12 @@
         </div>
     </div>
     <script src="js/login.js"></script>
+    <script type="text/javascript">
+    function chat2Bottom() {
+        var chat = document.getElementById('chat_log');
+        chat.scrollTop = chat.scrollHeight;
+    }
+    </script>
 </body>
 
 </html>

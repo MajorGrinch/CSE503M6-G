@@ -1,3 +1,33 @@
-#wrapper{
-	text-align: center;
+#login_wrapper {
+    text-align: center;
+    width: 50%;
+    margin-left: 25%;
+}
+
+#chat_log {
+    height: 600px;
+    margin-top: 1%;
+    border-style: solid;
+    border-width: 2px;
+    overflow-y: scroll;
+}
+
+#chat_input {
+    text-align: center;
+}
+
+#mainchat {
+    width: 50%;
+    margin-left: 25%;
+}
+
+#chat_rooms {
+    width: 25%;
+    height: 925px;
+    border-style: solid;
+    border-width: 2px;
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    bottom: 0%;
 }
