@@ -10,19 +10,11 @@
     <link rel="stylesheet" type="text/css" href="css/indexStyle.css">
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
-    var socketio = io.connect();
-    socketio.on("message_to_client", function(data) {
-        //Append an HR thematic break and the escaped HTML of the new message
-        document.getElementById("chat_log").appendChild(document.createElement("hr"));
-        document.getElementById("chat_log").appendChild(document.createTextNode(data['message']));
-        chat2Bottom();
-    });
-
-    function sendMessage() {
-        var msg = document.getElementById("message_input").value;
-        socketio.emit("message_to_server", { message: msg });
-        document.getElementById("message_input").value = '';
-    }
+    // function sendMessage() {
+    //     var msg = document.getElementById("message_input").value;
+    //     socketio.emit("message_to_server", { message: msg });
+    //     document.getElementById("message_input").value = '';
+    // }
     </script>
 </head>
 
@@ -48,11 +40,12 @@
             <div id="chat_input">
                 <textarea rows="4" cols="80" id="message_input"></textarea>
                 <br/>
-                <button onclick="sendMessage()">send</button>
+                <button id="send_btn">send</button>
             </div>
         </div>
         <div id="chat_rooms">
-            
+        </div>
+        <div id="room_members">
         </div>
     </div>
     <div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -87,6 +80,30 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="signup_btn">Sign up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="create_room_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="view_event_modal_title">Create Room</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="create_room_id" class="control-label">Room Name</label>
+                            <input type="text" id="create_room_id">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="create_room_btn">Create</button>
                 </div>
             </div>
         </div>

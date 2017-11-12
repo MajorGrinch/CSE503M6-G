@@ -15,7 +15,9 @@ var http = require('http'),
 const saltRounds = 10;
 var router = Router();
 
-var rooms = { '330': [23, 24] };
+var roomlist = ['330', '523'];
+var room_member = { '330': ['kevin'], '523': ['kevin'] };
+var room_owner = { '330': 'kevin', '523': 'kevin' }
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp) {
     if (req.method.toLowerCase() == 'post') {
@@ -118,16 +120,84 @@ router.post('/getChatRooms', function(req, res) {
     console.log('process get chat rooms');
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files) {
+        if (err) {
+            // File exists but is not readable (permissions issue?)
+            resp.writeHead(500, {
+                "Content-Type": "text/plain"
+            });
+            resp.write("Internal server error");
+            resp.end();
+            return;
+        }
         res.writeHead(200, { 'content-type': 'application/json' });
-        res.write(JSON.stringify(rooms));
+        console.log(roomlist);
+        res.write(JSON.stringify(roomlist));
         res.end();
     });
 
 });
 
+router.post('/enterRoom', function(req, res) {
+    console.log('process enter room');
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+        if (err) {
+            // File exists but is not readable (permissions issue?)
+            resp.writeHead(500, {
+                "Content-Type": "text/plain"
+            });
+            resp.write("Internal server error");
+            resp.end();
+            return;
+        }
+        var room = fields['roomid'];
+        var user = fields['username'];
+        if (room_member[room].contains(user) != -1) {
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.write(JSON.stringify(room_member[room]));
+            res.end();
+        } else {
+            room_member[room].push(user);
+            console.log(room_member);
+            console.log(room_member[room].contains(user));
+            res.writeHead(200, { 'content-type': 'application/json' });
+            res.write(JSON.stringify(room_member[room]));
+            res.end();
+        }
+    });
+
+});
+
+router.post('/createRoom', function(req, res) {
+    console.log('process create room');
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+        if (err) {
+            // File exists but is not readable (permissions issue?)
+            resp.writeHead(500, {
+                "Content-Type": "text/plain"
+            });
+            resp.write("Internal server error");
+            resp.end();
+            return;
+        }
+        var room = fields['roomid'];
+        var user = fields['username'];
+        roomlist.push(room);
+        room_owner[room] = user;
+        console.log(room_owner);
+        console.log(roomlist);
+        room_member[room] = [user];
+        console.log(room_member);
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.write(JSON.stringify(roomlist));
+        res.end();
+    });
+});
 
 
 app.listen(3456);
+
 // Do the Socket.IO magic:
 var io = socketio.listen(app);
 io.sockets.on("connection", function(socket) {
@@ -137,8 +207,12 @@ io.sockets.on("connection", function(socket) {
         // This callback runs when the server receives a new message from the client.
 
         console.log("message: " + data["message"]); // log it to the Node.JS output
+        console.log('roomid: ' + data["roomid"]);
+        console.log('from user: ' + data['username']);
         io.sockets.emit("message_to_client", {
-            message: data["message"]
+            message: data["message"],
+            roomid: data["roomid"],
+            src_user: data['username']
         }); // broadcast the message to other users
     });
 });
@@ -174,3 +248,10 @@ var User = seq.define('user', {
 }, {
     timestamps: false
 });
+
+Array.prototype.contains = function(needle) {
+    for (i in this) {
+        if (this[i] == needle) return i;
+    }
+    return -1;
+}

@@ -29,5 +29,14 @@
     position: fixed;
     top: 0%;
     left: 0%;
-    bottom: 0%;
+}
+
+#room_members{
+	width: 25%;
+	height: 925px;
+    border-style: solid;
+    border-width: 2px;
+    position: fixed;
+    top: 0%;
+    right: 0%;
 }
