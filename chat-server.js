@@ -19,7 +19,9 @@ var app = http.createServer(function(req, resp) {
     if (req.method.toLowerCase() == 'post') {
         router(req, resp, finalhandler(req, resp));
     } else {
+        // get
         var filename = path.join(__dirname, "static", url.parse(req.url).pathname);
+        console.log(filename);
         (fs.exists || path.exists)(filename, function(exists) {
             if (exists) {
                 fs.readFile(filename, function(err, data) {
