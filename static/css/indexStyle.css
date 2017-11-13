@@ -1,42 +1,69 @@
+
+/*修改按钮大小*/
+.btn {
+    font-size: 10px;
+ }
+
+/*上方登录*/
 #login_wrapper {
+    font-size: 10px;
     text-align: center;
     width: 50%;
     margin-left: 25%;
+    margin-top: 2%;
+    
 }
 
+/*包含username以及两个按钮*/
+#login_Form{
+    margin-top: 3.5%;
+}
+
+/*下方聊天区域区域*/
 #chat_log {
     height: 600px;
-    margin-top: 1%;
-    border-style: solid;
-    border-width: 2px;
+    margin-top: 5%;
+   /*border-style: ridge;
+    border-width: 1px*/
     overflow-y: scroll;
 }
 
 #chat_input {
     text-align: center;
+    font-size: 10px;
+    margin-bottom: 5%;
+    
 }
 
+/*主要聊天界面*/
 #mainchat {
-    width: 50%;
-    margin-left: 25%;
+    width: 60%;
+    margin: auto;
 }
 
+/*左侧房间区域*/
 #chat_rooms {
-    width: 25%;
-    height: 925px;
-    border-style: solid;
-    border-width: 2px;
+    width: 20%;
+    height: 100%;
+    /*border-style: ridge;
+    border-width: 1px*/
     position: fixed;
     top: 0%;
     left: 0%;
+    /*background-color: #373C38;*/
+    background-color: #373C38;
 }
 
+/*右侧成员区域*/
 #room_members{
-	width: 25%;
-	height: 925px;
-    border-style: solid;
-    border-width: 2px;
+    width:20%;
+    height: 100%;
+	/*height: 925px;*/
+    border-style: ridge;
+    border-width: 1px;
     position: fixed;
     top: 0%;
     right: 0%;
+    /*background-color: #91989f;*/
+    background-color: #FBBA42;
 }
