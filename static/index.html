@@ -46,6 +46,10 @@
             </div>
         </div>
         <div id="chat_rooms">
+            <div id="public_rooms"></div>
+            <div id="private_rooms"></div>
+            <button class="btn btn-primary" id="toggle_create_room">Create Room</button>
+            <button class="btn btn-secondary" id="toggle_create_private_room">Create Private Room</button>
         </div>
         <div id="room_members">
         </div>
@@ -86,11 +90,47 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="create_private_room_modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Create Private Room</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="create_private_room_form">
+                        <div class="form-group">
+                            <label for="create_private_room_id" class="control-label">Roomid</label>
+                            <input type="text" class="form-control" name="username" id="create_private_room_id" />
+                        </div>
+                        <div class="form-group">
+                            <label for="create_private_room_password" class="control-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="create_private_room_password" />
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_private_room_password" class="control-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_private_room_password" />
+                        </div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert" id="confirmation_error">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            Please enter the same in confirm password
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="create_private_room_btn">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal fade" id="create_room_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="view_event_modal_title">Create Room</h5>
+                    <h5 class="modal-title">Create Room</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -106,6 +146,30 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-success" id="create_room_btn">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="enter_private_room_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Enter password</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="private_room_password" class="control-label">Room Password</label>
+                            <input type="password" id="private_room_password" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="enter_private_room_btn">Enter</button>
                 </div>
             </div>
         </div>

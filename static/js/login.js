@@ -18,7 +18,7 @@ $('#signin_btn').click(function() {
             }
         })
 });
-
+var socketio = io.connect();
 
 $("#signup_btn").click(function() {
     if ($("#new_password").val() === $("#confirm_pwd").val()) {
@@ -39,19 +39,26 @@ $("#signup_btn").click(function() {
     $("#myModal").modal('hide');
 });
 
-function initRooms(data) {
-    $('#chat_rooms').empty();
+function initPublicRooms(data) {
+    $('#public_rooms').empty();
     data.forEach(function(room) {
-        $('#chat_rooms').append('<div class="card"><div class="card-block"><h2>' + room + '</h2></div></div>');
+        $('#public_rooms').append('<div class="card"><div class="card-block"><h2>' + room + '</h2></div></div>');
     });
-    $('#chat_rooms').append('<button class="btn btn-primary" id="toggle_create_room">Create Room</button>');
+}
+
+function initPrivateRooms(data) {
+    $('#private_rooms').empty();
+    data.forEach(function(room) {
+        $('#private_rooms').append('<div class="card"><div class="card-block"><h2>' + room + '</h2><span class="badge badge-danger">private</span></div></div>');
+    });
 }
 
 function getChatrooms(username) {
     $.post('getChatRooms', { username: username })
         .done(function(data) {
             console.log(data);
-            initRooms(data);
+            initPublicRooms(data['public']);
+            initPrivateRooms(data['private']);
         });
 }
 
@@ -74,25 +81,80 @@ function initRoomMembers(data) {
     });
 }
 var curr_room = "";
-$('#chat_rooms').on('click', '.card', function() {
-    console.log('click card');
-    var room = $(this).find("h2").text();
-    curr_room = room;
-    console.log(room);
 
-    var roomlist = $(this).parent('#chat_rooms').find('.card');
+//enter a public room
+var public_room_target = '';
+$('#public_rooms').on('click', '.card', function() {
+    console.log('enter public room');
+    var room = $(this).find("h2").text();
+    public_room_target = room;
+    // console.log(room);
+
+    var roomlist = $(this).parent('#public_rooms').find('.card');
+    var privateroomlist = $('#private_rooms').find('.card');
+    privateroomlist.css('background-color', 'white');
     roomlist.css('background-color', 'white');
     $(this).css('background-color', 'gray');
     $('#room_members').empty();
     $('#chat_log').empty();
-    console.log('You are in room: ' + curr_room);
-    enterRoom(room, curr_user);
+    console.log('You are entering room: ' + public_room_target);
+    enterPublicRoom(room, curr_user);
 });
 
-function enterRoom(roomid, username) {
+function enterPublicRoom(roomid, username) {
     console.log(roomid + ' ' + username);
-    socketio.emit("enterRoom", { roomid: roomid, user: username });
+    socketio.emit("enterPublicRoom", { roomid: roomid, user: username });
 }
+var private_room_target = '';
+// enter a private room
+$('#private_rooms').on('click', '.card', function() {
+    console.log('enter private room');
+    var room = $(this).find('h2').text();
+    private_room_target = room;
+    console.log(private_room_target);
+    var publicroomlist = $('#public_rooms').find('.card');
+    publicroomlist.css('background-color', 'white');
+    var roomlist = $(this).parent('#private_rooms').find('.card');
+    roomlist.css('background-color', 'white');
+    $(this).css('background-color', 'gray');
+    // console.log(roomlist);
+    $('#enter_private_room_modal').modal('show');
+});
+
+function enterPrivateRoom(roomid, username, password) {
+   var payload = {roomid: roomid, user: username, password: password}; 
+   socketio.emit('enterPrivateRoom', payload);
+}
+
+$('#enter_private_room_btn').click(function() {
+    console.log('enter private room btn');
+    var password = $('#private_room_password').val();
+    if(private_room_target != ''){
+    	enterPrivateRoom(private_room_target, curr_user, password);
+    }    
+    $('#enter_private_room_modal').modal('hide');
+});
+
+socketio.on("enterPrivateRoom_rsp", function(data){
+	if(data['roomid'] != private_room_target){
+		return;
+	}
+	if(data['owner'] == curr_user){
+		owInitRoomMembers(data['data']);
+	}else{
+		initRoomMembers(data['data']);
+	}
+	curr_room = data['roomid'];
+	$('#chat_log').empty();
+});
+
+socketio.on("enterPrivateRoomFail_rsp", function(data){
+	console.log("enter private room failed.");
+	console.log(data);
+	if(data['trgt_user'] == curr_user){
+		alert(data['data']);
+	}
+});
 
 function sendMessage(room) {
     var msg = $('#message_input').val();
@@ -105,7 +167,7 @@ $('#send_btn').click(function() {
     sendMessage(curr_room);
 })
 
-var socketio = io.connect();
+
 socketio.on("message_to_client", function(data) {
     console.log(data);
     if (data['roomid'] == curr_room && data['room_member'].contains(curr_user) != -1) {
@@ -151,25 +213,26 @@ socketio.on("kb_user_rsp", function(data) {
     }
 });
 
-socketio.on("enterRoom_rsp", function(data) {
-    console.log("enter room rsp");
+socketio.on("enterPublicRoom_rsp", function(data) {
+    console.log("enter public room rsp");
     console.log(data);
-    if(data['roomid'] != curr_room){
-    	return;
+    if (data['roomid'] != public_room_target) {
+        return;
     }
     if (data['owner'] == curr_user) {
         owInitRoomMembers(data['data']);
     } else {
         initRoomMembers(data['data']);
     }
+    curr_room = data['roomid'];  
 });
 
-socketio.on("enterRoomFail_rsp", function(data){
-	console.log('enter room fail');
-	console.log(data);
-	if(data['trgt_user'] == curr_user){
-		alert(data['msg']);
-	}
+socketio.on("enterPublicRoomFail_rsp", function(data) {
+    console.log('enter room fail');
+    console.log(data);
+    if (data['trgt_user'] == curr_user) {
+        alert(data['msg']);
+    }
 });
 
 $('#chat_rooms').on('click', '#toggle_create_room', function() {
@@ -184,10 +247,34 @@ $('#create_room_btn').click(function() {
     $('#create_room_modal').modal('hide');
 });
 
-socketio.on("createRoom_rsp", function(data){
-	console.log("create room rsp");
-	console.log(data);
-	initRooms(data['roomlist']);
+$('#chat_rooms').on('click', '#toggle_create_private_room', function() {
+    $('#create_private_room_modal').modal('show');
+});
+
+$('#create_private_room_btn').click(function() {
+    console.log('click create private room btn');
+    var roomid = $('#create_private_room_id').val();
+    var password = $('#create_private_room_password').val();
+    var confirm_pwd = $('#confirm_private_room_password').val();
+    if (password == confirm_pwd) {
+        var payload = { roomid: roomid, user: curr_user, password: password };
+        socketio.emit('createPrivateRoom', payload);
+    } else {
+        alert('Please enter the same password in confirm box');
+    }
+    $('#create_private_room_modal').modal('hide');
+});
+
+socketio.on("createRoom_rsp", function(data) {
+    console.log("create room rsp");
+    console.log(data);
+    initPublicRooms(data['roomlist']);
+});
+
+socketio.on("createPrivateRoom_rsp", function(data) {
+    console.log("create private room rsp");
+    console.log(data);
+    initPrivateRooms(data['privateRoomList']);
 });
 
 $('#room_members').on('click', '.kick_user', function() {
