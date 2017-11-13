@@ -40,7 +40,7 @@ $("#signup_btn").click(function() {
 });
 
 function initRooms(data) {
-	$('#chat_rooms').empty();
+    $('#chat_rooms').empty();
     data.forEach(function(room) {
         $('#chat_rooms').append('<div class="card"><div class="card-block"><h2>' + room + '</h2></div></div>');
     });
@@ -54,22 +54,45 @@ function getChatrooms(username) {
             initRooms(data);
         });
 }
+
+function owInitRoomMembers(data) {
+    $('#room_members').empty();
+    data.forEach(function(member) {
+        if (member != curr_user) {
+            $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div>');
+        } else {
+            $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2></div></div>');
+        }
+
+    });
+}
+
+function initRoomMembers(data) {
+    $('#room_members').empty();
+    data.forEach(function(member) {
+        $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2></div></div>');
+    });
+}
 var curr_room = "";
 $('#chat_rooms').on('click', '.card', function() {
     console.log('click card');
     var room = $(this).find("h2").text();
     curr_room = room;
     console.log(room);
+
+    var roomlist = $(this).parent('#chat_rooms').find('.card');
+    roomlist.css('background-color', 'white');
+    $(this).css('background-color', 'gray');
     $('#room_members').empty();
     $('#chat_log').empty();
-    $.post('enterRoom', { roomid: room, username: curr_user })
-        .done(function(data) {
-            console.log(data);
-            data.forEach(function(member) {
-                $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2></div></div>');
-            });
-        });
+    console.log('You are in room: ' + curr_room);
+    enterRoom(room, curr_user);
 });
+
+function enterRoom(roomid, username) {
+    console.log(roomid + ' ' + username);
+    socketio.emit("enterRoom", { roomid: roomid, user: username });
+}
 
 function sendMessage(room) {
     var msg = $('#message_input').val();
@@ -84,7 +107,8 @@ $('#send_btn').click(function() {
 
 var socketio = io.connect();
 socketio.on("message_to_client", function(data) {
-    if (data['roomid'] == curr_room) {
+    console.log(data);
+    if (data['roomid'] == curr_room && data['room_member'].contains(curr_user) != -1) {
         //Append an HR thematic break and the escaped HTML of the new message
         document.getElementById("chat_log").appendChild(document.createElement("hr"));
         document.getElementById("chat_log").appendChild(document.createTextNode(data['src_user']));
@@ -95,6 +119,59 @@ socketio.on("message_to_client", function(data) {
 
 });
 
+socketio.on("kick_user_rsp", function(data) {
+    console.log(data);
+    if (data['roomid'] == curr_room) {
+        if (data['target'] == curr_user) {
+            curr_room = '';
+            alert('You were kicked out of room ' + data['roomid']);
+            initRoomMembers(data['room_member']);
+        } else if (data['owner'] == curr_user) {
+            console.log(data['room_member']);
+            owInitRoomMembers(data['room_member']);
+        } else {
+            initRoomMembers(data['room_member']);
+        }
+    }
+});
+
+socketio.on("kb_user_rsp", function(data) {
+    console.log(data);
+    if (data['roomid'] == curr_room) {
+        if (data['target'] == curr_user) {
+            curr_room = '';
+            alert('You were kicked out of room ' + data['roomid']);
+            initRoomMembers(data['room_member']);
+        } else if (data['owner'] == curr_user) {
+            console.log(data['room_member']);
+            owInitRoomMembers(data['room_member']);
+        } else {
+            initRoomMembers(data['room_member']);
+        }
+    }
+});
+
+socketio.on("enterRoom_rsp", function(data) {
+    console.log("enter room rsp");
+    console.log(data);
+    if(data['roomid'] != curr_room){
+    	return;
+    }
+    if (data['owner'] == curr_user) {
+        owInitRoomMembers(data['data']);
+    } else {
+        initRoomMembers(data['data']);
+    }
+});
+
+socketio.on("enterRoomFail_rsp", function(data){
+	console.log('enter room fail');
+	console.log(data);
+	if(data['trgt_user'] == curr_user){
+		alert(data['msg']);
+	}
+});
+
 $('#chat_rooms').on('click', '#toggle_create_room', function() {
     console.log('click crate room');
     $('#create_room_modal').modal('show');
@@ -102,10 +179,37 @@ $('#chat_rooms').on('click', '#toggle_create_room', function() {
 
 $('#create_room_btn').click(function() {
     var roomid = $('#create_room_id').val();
-    $.post('createRoom', { roomid: roomid, username: curr_user })
-        .done(function(data) {
-            console.log(data);
-            initRooms(data);
-        });
+    var payload = { roomid: roomid, username: curr_user };
+    socketio.emit('createRoom', payload);
     $('#create_room_modal').modal('hide');
 });
+
+socketio.on("createRoom_rsp", function(data){
+	console.log("create room rsp");
+	console.log(data);
+	initRooms(data['roomlist']);
+});
+
+$('#room_members').on('click', '.kick_user', function() {
+    console.log('kick user');
+    var kick_user = $(this).parent('.card-block').find('h2').text();
+    console.log(kick_user);
+    var payload = { trgt_user: kick_user, roomid: curr_room };
+    console.log(payload);
+    socketio.emit('kick_user', payload);
+});
+
+$('#room_members').on('click', '.kb_user', function() {
+    console.log('kick & block user');
+    var kb_user = $(this).parent('.card-block').find('h2').text();
+    console.log(kb_user);
+    var payload = { trgt_user: kb_user, roomid: curr_room };
+    socketio.emit('kb_user', payload);
+});
+
+Array.prototype.contains = function(needle) {
+    for (i in this) {
+        if (this[i] == needle) return i;
+    }
+    return -1;
+}

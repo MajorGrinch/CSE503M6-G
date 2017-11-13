@@ -18,6 +18,7 @@ var router = Router();
 var roomlist = ['330', '523'];
 var room_member = { '330': ['kevin'], '523': ['kevin'] };
 var room_owner = { '330': 'kevin', '523': 'kevin' }
+var black_list = {};
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
 var app = http.createServer(function(req, resp) {
     if (req.method.toLowerCase() == 'post') {
@@ -137,64 +138,64 @@ router.post('/getChatRooms', function(req, res) {
 
 });
 
-router.post('/enterRoom', function(req, res) {
-    console.log('process enter room');
+
+// router.post('/createRoom', function(req, res) {
+//     console.log('process create room');
+//     var form = new formidable.IncomingForm();
+//     form.parse(req, function(err, fields, files) {
+//         if (err) {
+//             // File exists but is not readable (permissions issue?)
+//             res.writeHead(500, {
+//                 "Content-Type": "text/plain"
+//             });
+//             res.write("Internal server error");
+//             res.end();
+//             return;
+//         }
+//         var room = fields['roomid'];
+//         var user = fields['username'];
+//         roomlist.push(room);
+//         room_owner[room] = user;
+//         console.log(room_owner);
+//         console.log(roomlist);
+//         room_member[room] = [user];
+//         console.log(room_member);
+//         res.writeHead(200, { 'content-type': 'application/json' });
+//         res.write(JSON.stringify(roomlist));
+//         res.end();
+//     });
+// });
+
+router.post('/kickUser', function(req, res) {
+    console.log('process kick user');
     var form = new formidable.IncomingForm();
+    var retData = {};
     form.parse(req, function(err, fields, files) {
         if (err) {
             // File exists but is not readable (permissions issue?)
-            resp.writeHead(500, {
+            res.writeHead(500, {
                 "Content-Type": "text/plain"
             });
-            resp.write("Internal server error");
-            resp.end();
+            res.write("Internal server error");
+            res.end();
             return;
         }
         var room = fields['roomid'];
-        var user = fields['username'];
-        if (room_member[room].contains(user) != -1) {
-            res.writeHead(200, { 'content-type': 'application/json' });
-            res.write(JSON.stringify(room_member[room]));
-            res.end();
+        var trgt_user = fields['trgt_user'];
+        var index = room_member[room].contains(trgt_user);
+        if (index != -1) {
+            room_member[room].splice(index, 1);
+            retData['is_kick'] = 'yes';
         } else {
-            room_member[room].push(user);
-            console.log(room_member);
-            console.log(room_member[room].contains(user));
-            res.writeHead(200, { 'content-type': 'application/json' });
-            res.write(JSON.stringify(room_member[room]));
-            res.end();
+            retData['is_kick'] = 'no';
         }
-    });
-
-});
-
-router.post('/createRoom', function(req, res) {
-    console.log('process create room');
-    var form = new formidable.IncomingForm();
-    form.parse(req, function(err, fields, files) {
-        if (err) {
-            // File exists but is not readable (permissions issue?)
-            resp.writeHead(500, {
-                "Content-Type": "text/plain"
-            });
-            resp.write("Internal server error");
-            resp.end();
-            return;
-        }
-        var room = fields['roomid'];
-        var user = fields['username'];
-        roomlist.push(room);
-        room_owner[room] = user;
-        console.log(room_owner);
-        console.log(roomlist);
-        room_member[room] = [user];
-        console.log(room_member);
+        retData['data'] = room_member[room];
+        console.log(room_member[room]);
         res.writeHead(200, { 'content-type': 'application/json' });
-        res.write(JSON.stringify(roomlist));
+        res.write(JSON.stringify(retData));
         res.end();
     });
 });
-
 
 app.listen(3456);
 
@@ -202,6 +203,17 @@ app.listen(3456);
 var io = socketio.listen(app);
 io.sockets.on("connection", function(socket) {
     // This callback runs when a new Socket.IO connection is established.
+    socket.on('createRoom', function(data){
+        console.log('process create room');
+        var room = data['roomid'], user = data['username'];
+        roomlist.push(room);
+        room_owner[room] = user;
+        console.log(room_owner);
+        console.log(roomlist);
+        room_member[room] = [user];
+        console.log(room_member);
+        io.sockets.emit('createRoom_rsp', {roomlist: roomlist});
+    });
 
     socket.on('message_to_server', function(data) {
         // This callback runs when the server receives a new message from the client.
@@ -209,11 +221,81 @@ io.sockets.on("connection", function(socket) {
         console.log("message: " + data["message"]); // log it to the Node.JS output
         console.log('roomid: ' + data["roomid"]);
         console.log('from user: ' + data['username']);
+        console.log('will send to: ' + room_member[data["roomid"]])
         io.sockets.emit("message_to_client", {
             message: data["message"],
             roomid: data["roomid"],
-            src_user: data['username']
+            src_user: data['username'],
+            room_member: room_member[data["roomid"]]
         }); // broadcast the message to other users
+    });
+
+    socket.on('kick_user', function(data) {
+        console.log(data);
+        var trgt_user = data['trgt_user'];
+        var roomid = data['roomid'];
+        var index = room_member[roomid].contains(trgt_user);
+        if (index != -1) {
+            room_member[roomid].splice(index, 1);
+        }
+        io.sockets.emit("kick_user_rsp", {
+            room_member: room_member[roomid],
+            roomid: roomid,
+            target: trgt_user,
+            owner: room_owner[roomid]
+        });
+    });
+
+    socket.on('kb_user', function(data) {
+        console.log(data);
+        var trgt_user = data['trgt_user'];
+        var roomid = data['roomid'];
+        var index = room_member[roomid].contains(trgt_user);
+        if (index != -1) {
+            room_member[roomid].splice(index, 1);
+            if (black_list[roomid] == undefined) {
+                black_list[roomid] = [];
+            }
+            black_list[roomid].push(trgt_user);
+            console.log(black_list);
+        }
+        io.sockets.emit("kb_user_rsp", {
+            room_member: room_member[roomid],
+            roomid: roomid,
+            target: trgt_user,
+            owner: room_owner[roomid]
+        });
+    });
+
+    socket.on('enterRoom', function(data) {
+        console.log('enter room');
+        var room = data['roomid'];
+        var user = data['user'];
+        console.log(user);
+        var retData = {};
+        if(black_list[room] != undefined ){
+            if(black_list[room].contains(user) != -1){
+                payload = {
+                            msg: 'You are banned from this room',
+                            trgt_user: user
+                        }
+                io.sockets.emit('enterRoomFail_rsp', payload);
+                return;
+            }
+        }
+        retData['owner'] = room_owner[room];
+        if (room_member[room].contains(user) != -1) {
+            retData['roomid'] = room;
+            retData['data'] = room_member[room];
+            io.sockets.emit('enterRoom_rsp', retData);
+        } else {
+            retData['roomid'] = room;
+            room_member[room].push(user);
+            console.log(room_member);
+            console.log(room_member[room].contains(user));
+            retData['data'] = room_member[room];
+            io.sockets.emit('enterRoom_rsp', retData);
+        }
     });
 });
 
@@ -255,3 +337,4 @@ Array.prototype.contains = function(needle) {
     }
     return -1;
 }
+
