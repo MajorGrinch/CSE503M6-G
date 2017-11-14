@@ -42,14 +42,14 @@ $("#signup_btn").click(function() {
 function initPublicRooms(data) {
     $('#public_rooms').empty();
     data.forEach(function(room) {
-        $('#public_rooms').append('<div class="card"><div class="card-block"><h5>' + room + '</h5></div></div>');
+        $('#public_rooms').append('<div class="room"><div class="card"><div class="card-block"><h5>' + room + '</h5></div></div></div>');
     });
 }
 
 function initPrivateRooms(data) {
     $('#private_rooms').empty();
     data.forEach(function(room) {
-        $('#private_rooms').append('<div class="card"><div class="card-block"><h5>' + room + '</h5><span class="badge badge-danger">private</span></div></div>');
+        $('#private_rooms').append('<div class="room"><div class="card"><div class="card-block"><h5>' + room + '</h5><span class="badge badge-danger">private</span></div></div></div>');
     });
 }
 
@@ -66,9 +66,9 @@ function owInitRoomMembers(data) {
     $('#room_members').empty();
     data.forEach(function(member) {
         if (member != curr_user) {
-            $('#room_members').append('<div class="card"><div class="card-block"><h5>' + member + '</h5><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div>');
+            $('#room_members').append('<div class="member"><div class="card"><div class="card-block"><h5>' + member + '</h5><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div></div>');
         } else {
-            $('#room_members').append('<div class="card"><div class="card-block"><h5>' + member + '</h5></div></div>');
+            $('#room_members').append('<div class="member"><div class="card"><div class="card-block"><h5>' + member + '</h5></div></div></div>');
         }
 
     });
@@ -77,7 +77,7 @@ function owInitRoomMembers(data) {
 function initRoomMembers(data) {
     $('#room_members').empty();
     data.forEach(function(member) {
-        $('#room_members').append('<div class="card"><div class="card-block"><h5>' + member + '</h5></div></div>');
+        $('#room_members').append('<div class="member"><div class="card"><div class="card-block"><h5>' + member + '</h5></div></div></div>');
     });
 }
 var curr_room = "";

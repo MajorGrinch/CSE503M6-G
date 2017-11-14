@@ -69,10 +69,15 @@
     top: 0%;
     right: 0%;
     /*background-color: #91989f;*/
-    background-color: #FBBA42;
+    
     }
 
-.card
+.member
+{
+    background-color: #FBBA42;
+}
+
+.room
 {
     background: #373C38;
 }
