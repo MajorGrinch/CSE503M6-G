@@ -42,14 +42,14 @@ $("#signup_btn").click(function() {
 function initPublicRooms(data) {
     $('#public_rooms').empty();
     data.forEach(function(room) {
-        $('#public_rooms').append('<div class="room"><div class="card"><div class="card-block"><h5>' + room + '</h5></div></div></div>');
+        $('#public_rooms').append('<div class="card"><div class="card-block"><div class="room"><h5>' + room + '</h5></div></div></div>');
     });
 }
 
 function initPrivateRooms(data) {
     $('#private_rooms').empty();
     data.forEach(function(room) {
-        $('#private_rooms').append('<div class="room"><div class="card"><div class="card-block"><h5>' + room + '</h5><span class="badge badge-danger">private</span></div></div></div>');
+        $('#private_rooms').append('<div class="card"><div class="card-block"><div class="room"><h5>' + room + '</h5><span class="badge badge-danger">private</span></div></div></div>');
     });
 }
 
@@ -66,9 +66,9 @@ function owInitRoomMembers(data) {
     $('#room_members').empty();
     data.forEach(function(member) {
         if (member != curr_user) {
-            $('#room_members').append('<div class="member"><div class="card"><div class="card-block"><h5>' + member + '</h5><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div></div>');
+            $('#room_members').append('<div class="card"><div class="card-block"><div class="member"><h5>' + member + '</h5><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div></div>');
         } else {
-            $('#room_members').append('<div class="member"><div class="card"><div class="card-block"><h5>' + member + '</h5></div></div></div>');
+            $('#room_members').append('<div class="card"><div class="card-block"><div class="member"><h5>' + member + '</h5></div></div></div>');
         }
 
     });
@@ -77,7 +77,7 @@ function owInitRoomMembers(data) {
 function initRoomMembers(data) {
     $('#room_members').empty();
     data.forEach(function(member) {
-        $('#room_members').append('<div class="member"><div class="card"><div class="card-block"><h5>' + member + '</h5></div></div></div>');
+        $('#room_members').append('<div class="card"><div class="card-block"><div class="member"><h5>' + member + '</h5></div></div></div>');
     });
 }
 var curr_room = "";
@@ -92,9 +92,9 @@ $('#public_rooms').on('click', '.card', function() {
 
     var roomlist = $(this).parent('#public_rooms').find('.card');
     var privateroomlist = $('#private_rooms').find('.card');
-    privateroomlist.css('background-color', 'white');
-    roomlist.css('background-color', 'white');
-    $(this).css('background-color', 'gray');
+    privateroomlist.css('background-color', '#373C38'); //white
+    roomlist.css('background-color', '#373C38');  //white
+    $(this).css('background-color', 'gray');  //gray
     $('#room_members').empty();
     $('#chat_log').empty();
     console.log('You are entering room: ' + public_room_target);
@@ -113,10 +113,10 @@ $('#private_rooms').on('click', '.card', function() {
     private_room_target = room;
     console.log(private_room_target);
     var publicroomlist = $('#public_rooms').find('.card');
-    publicroomlist.css('background-color', 'white');
+    publicroomlist.css('background-color', '#373C38'); //white
     var roomlist = $(this).parent('#private_rooms').find('.card');
-    roomlist.css('background-color', 'white');
-    $(this).css('background-color', 'gray');
+    roomlist.css('background-color', '#373C38'); //white
+    $(this).css('background-color', 'gray');  //gray
     // console.log(roomlist);
     $('#enter_private_room_modal').modal('show');
 });

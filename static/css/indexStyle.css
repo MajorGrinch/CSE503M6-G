@@ -73,7 +73,7 @@
     
     }
 
-.member
+/*.member
 {
     background: #FBBA42;
 }
@@ -81,9 +81,13 @@
 .room
 {
     background: #373C38;
+}*/
+.card-block
+{
+    background:#373C38;
+    text-decoration-color: white;
 }
 
-h5
-{
-    text-decoration-color: white;
+h5{
+color: white;
 }
