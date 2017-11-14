@@ -26,6 +26,8 @@
    /*border-style: ridge;
     border-width: 1px*/
     overflow-y: scroll;
+    font-size: 15px;
+    color: black;
 }
 
 #chat_input {
@@ -43,6 +45,7 @@
 
 /*左侧房间区域*/
 #chat_rooms {
+    font-size: 10px;
     width: 20%;
     height: 100%;
     /*border-style: ridge;
@@ -56,6 +59,7 @@
 
 /*右侧成员区域*/
 #room_members{
+    font-size: 10px;
     width:20%;
     height: 100%;
 	/*height: 925px;*/
