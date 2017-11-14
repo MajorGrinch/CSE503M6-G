@@ -99,6 +99,9 @@ $('#public_rooms').on('click', '.card', function() {
     $('#chat_log').empty();
     console.log('You are entering room: ' + public_room_target);
     enterPublicRoom(room, curr_user);
+    $('#login_wrapper').find('h6').remove();
+    //Tell users which room they have entered
+    $('#login_wrapper').append('<h6>Welcome to room , ' + public_room_target + '</h6>')
 });
 
 function enterPublicRoom(roomid, username) {
@@ -119,6 +122,9 @@ $('#private_rooms').on('click', '.card', function() {
     $(this).css('background-color', 'gray');  //gray
     // console.log(roomlist);
     $('#enter_private_room_modal').modal('show');
+    $('#login_wrapper').find('h6').remove();
+    //Tell users which room they have entered
+    $('#login_wrapper').append('<h6>Welcome to room , ' + private_room_target + '</h6>')
 });
 
 function enterPrivateRoom(roomid, username, password) {
