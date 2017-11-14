@@ -69,16 +69,21 @@
     top: 0%;
     right: 0%;
     /*background-color: #91989f;*/
+    background: #FBBA42;
     
     }
 
 .member
 {
-    color: white;
-    background-color: #FBBA42;
+    background: #FBBA42;
 }
 
 .room
 {
     background: #373C38;
+}
+
+h5
+{
+    text-decoration-color: white;
 }
