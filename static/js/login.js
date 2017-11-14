@@ -10,7 +10,7 @@ $('#signin_btn').click(function() {
             if (data['status'] == 'success') {
                 alert('Sign in successfully.');
                 $('#login_wrapper').empty();
-                $('#login_wrapper').append('<h1>Welcome, ' + username + '</h1><br/>')
+                $('#login_wrapper').append('<h4>Welcome, ' + username + '</h4><br/>')
                 getChatrooms(username);
                 curr_user = username;
             } else {
@@ -42,14 +42,14 @@ $("#signup_btn").click(function() {
 function initPublicRooms(data) {
     $('#public_rooms').empty();
     data.forEach(function(room) {
-        $('#public_rooms').append('<div class="card"><div class="card-block"><h2>' + room + '</h2></div></div>');
+        $('#public_rooms').append('<div class="card"><div class="card-block"><h5>' + room + '</h5></div></div>');
     });
 }
 
 function initPrivateRooms(data) {
     $('#private_rooms').empty();
     data.forEach(function(room) {
-        $('#private_rooms').append('<div class="card"><div class="card-block"><h2>' + room + '</h2><span class="badge badge-danger">private</span></div></div>');
+        $('#private_rooms').append('<div class="card"><div class="card-block"><h5>' + room + '</h5><span class="badge badge-danger">private</span></div></div>');
     });
 }
 
@@ -66,9 +66,9 @@ function owInitRoomMembers(data) {
     $('#room_members').empty();
     data.forEach(function(member) {
         if (member != curr_user) {
-            $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div>');
+            $('#room_members').append('<div class="card"><div class="card-block"><h5>' + member + '</h5><button class="kick_user">Kick</button><button class="kb_user">Kick&Block</button></div></div>');
         } else {
-            $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2></div></div>');
+            $('#room_members').append('<div class="card"><div class="card-block"><h5>' + member + '</h5></div></div>');
         }
 
     });
@@ -77,7 +77,7 @@ function owInitRoomMembers(data) {
 function initRoomMembers(data) {
     $('#room_members').empty();
     data.forEach(function(member) {
-        $('#room_members').append('<div class="card"><div class="card-block"><h2>' + member + '</h2></div></div>');
+        $('#room_members').append('<div class="card"><div class="card-block"><h5>' + member + '</h5></div></div>');
     });
 }
 var curr_room = "";
@@ -86,7 +86,7 @@ var curr_room = "";
 var public_room_target = '';
 $('#public_rooms').on('click', '.card', function() {
     console.log('enter public room');
-    var room = $(this).find("h2").text();
+    var room = $(this).find("h5").text();
     public_room_target = room;
     // console.log(room);
 
@@ -109,7 +109,7 @@ var private_room_target = '';
 // enter a private room
 $('#private_rooms').on('click', '.card', function() {
     console.log('enter private room');
-    var room = $(this).find('h2').text();
+    var room = $(this).find('h5').text();
     private_room_target = room;
     console.log(private_room_target);
     var publicroomlist = $('#public_rooms').find('.card');
@@ -279,7 +279,7 @@ socketio.on("createPrivateRoom_rsp", function(data) {
 
 $('#room_members').on('click', '.kick_user', function() {
     console.log('kick user');
-    var kick_user = $(this).parent('.card-block').find('h2').text();
+    var kick_user = $(this).parent('.card-block').find('h5').text();
     console.log(kick_user);
     var payload = { trgt_user: kick_user, roomid: curr_room };
     console.log(payload);
@@ -288,7 +288,7 @@ $('#room_members').on('click', '.kick_user', function() {
 
 $('#room_members').on('click', '.kb_user', function() {
     console.log('kick & block user');
-    var kb_user = $(this).parent('.card-block').find('h2').text();
+    var kb_user = $(this).parent('.card-block').find('h5').text();
     console.log(kb_user);
     var payload = { trgt_user: kb_user, roomid: curr_room };
     socketio.emit('kb_user', payload);
