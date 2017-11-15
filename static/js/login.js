@@ -165,6 +165,7 @@ socketio.on("enterPrivateRoomFail_rsp", function(data) {
     }
 });
 
+//send messages
 function sendMessage(room) {
     var msg = $('#message_input').val();
     console.log(msg);
@@ -172,6 +173,7 @@ function sendMessage(room) {
     $('#message_input').val('');
 }
 
+//send private message to another user
 function sendPrivateMessage(src_user, dest_user) {
     var msg = $('#message_input').val();
     console.log(msg);
@@ -180,6 +182,7 @@ function sendPrivateMessage(src_user, dest_user) {
     $('#message_input').val('');
 }
 
+//receive messages
 socketio.on("message_to_client", function(data) {
     console.log('message to client');
     console.log(data);
@@ -295,6 +298,7 @@ socketio.on("createPrivateRoom_rsp", function(data) {
     initPrivateRooms(data['privateRoomList']);
 });
 
+//kick users
 $('#room_members').on('click', '.kick_user', function() {
     console.log('kick user');
     var kick_user = $(this).parent('.member').find('h5').text();
@@ -304,6 +308,7 @@ $('#room_members').on('click', '.kick_user', function() {
     socketio.emit('kick_user', payload);
 });
 
+//kick and block users
 $('#room_members').on('click', '.kb_user', function() {
     console.log('kick & block user');
     var kb_user = $(this).parent('.member').find('h5').text();
@@ -312,7 +317,7 @@ $('#room_members').on('click', '.kb_user', function() {
     socketio.emit('kb_user', payload);
 });
 
-
+//double click users in member list to start private message
 $('#room_members').on('dblclick', '.card', function() {
     var member = $(this).find('h5').text();
     console.log(member);

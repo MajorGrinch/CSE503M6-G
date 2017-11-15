@@ -63,6 +63,7 @@ var app = http.createServer(function(req, resp) {
     }
 });
 
+// user register
 router.post('/register', function(req, res) {
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files) {
@@ -87,6 +88,7 @@ router.post('/register', function(req, res) {
     });
 });
 
+//user login
 router.post('/login', function(req, res) {
     var form = new formidable.IncomingForm();
     console.log('process login');
@@ -118,6 +120,7 @@ router.post('/login', function(req, res) {
     });
 });
 
+//get Chat rooms
 router.post('/getChatRooms', function(req, res) {
     console.log('process get chat rooms');
     var form = new formidable.IncomingForm();
@@ -163,7 +166,7 @@ io.sockets.on("connection", function(socket) {
     socket.on('message_to_server', function(data) {
         // This callback runs when the server receives a new message from the client.
 
-        console.log("message: " + data["message"]); // log it to the Node.JS output
+        console.log("message: " + data["message"]);
         console.log('roomid: ' + data["roomid"]);
         console.log('from user: ' + data['username']);
         console.log('will send to: ' + room_member[data["roomid"]])
@@ -175,6 +178,7 @@ io.sockets.on("connection", function(socket) {
         }); // broadcast the message to other users
     });
 
+    // kick users from current chat room
     socket.on('kick_user', function(data) {
         console.log(data);
         var trgt_user = data['trgt_user'];
@@ -191,6 +195,7 @@ io.sockets.on("connection", function(socket) {
         });
     });
 
+    // kick and ban users from current chat room
     socket.on('kb_user', function(data) {
         console.log(data);
         var trgt_user = data['trgt_user'];
@@ -212,6 +217,7 @@ io.sockets.on("connection", function(socket) {
         });
     });
 
+    //users enter a public chat room
     socket.on('enterPublicRoom', function(data) {
         console.log('enter public room');
         var room = data['roomid'];
@@ -242,7 +248,7 @@ io.sockets.on("connection", function(socket) {
             io.sockets.emit('enterPublicRoom_rsp', retData);
         }
     });
-
+    // users enter a private room with password
     socket.on('enterPrivateRoom', function(data){
         console.log('enter private room');
         console.log(data);
@@ -302,6 +308,7 @@ io.sockets.on("connection", function(socket) {
         })();
     });
 
+    //users create a private room with password
     socket.on('createPrivateRoom', function(data){
         console.log('create private room');
         var roomid = data['roomid'];
@@ -324,6 +331,7 @@ io.sockets.on("connection", function(socket) {
         });
     });
 
+    //estalish private connection between two users
     socket.on('pri_Msg_req', function(data){
         console.log('receive private message request');
         var src_user = data['src_user'];
@@ -331,6 +339,7 @@ io.sockets.on("connection", function(socket) {
         io.sockets.emit('pri_Msg_req_rsp', data);
     });
 
+    // users send private messages to another user
     socket.on('privateMessage', function(data){
         console.log('receive private message');
         console.log(data);
@@ -383,6 +392,7 @@ var PrivateRoom = seq.define('privateRoom', {
     timestamps: false
 });
 
+//get all private rooms in the database
 (async() => {
     var privateRooms = await PrivateRoom.findAll({
         attributes: ['roomid', 'owner']
