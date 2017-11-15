@@ -1,6 +1,6 @@
 ## What is this repo for
 This repo is for module 6 group work written by ZIYANG WANG(459018) and MIAO GAO(458825).
-Here is the [link]()
+Here is the [link](http://majorkevin.me:3456/index.html)
 
 ## Administration of user created chat rooms
 + Users can create a room by clicking on "create room". They can do this before or after log in to the website.
