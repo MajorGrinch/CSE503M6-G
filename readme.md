@@ -27,3 +27,6 @@ Here is the [link]()
 |kirk|12345|
 
 Passwords for all private rooms are ```11111```
+
+## Creative Portion
+We use package ```sequelize``` and ```mysql2``` for node.js to connect to mysql database. Here we implement login and register by interacting with mysql database. We store hashed users' password in database and hashed private rooms' password in database for security consideration. Also, entering a private room need to interact with mysql database.
