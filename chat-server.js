@@ -17,7 +17,7 @@ var router = Router();
 
 var roomlist = ['330', '523'];
 var privateRoomList = [];
-var room_member = { '330': ['kevin'], '523': ['kevin'] };
+var room_member = { '330': ['kevin'], '523': ['kevin']};
 var room_owner = { '330': 'kevin', '523': 'kevin' }
 var black_list = {};
 // Listen for HTTP connections.  This is essentially a miniature static file server that only serves our one file, client.html:
@@ -323,6 +323,21 @@ io.sockets.on("connection", function(socket) {
             });
         });
     });
+
+    socket.on('pri_Msg_req', function(data){
+        console.log('receive private message request');
+        var src_user = data['src_user'];
+        var dest_user = data['dest_user'];
+        io.sockets.emit('pri_Msg_req_rsp', data);
+    });
+
+    socket.on('privateMessage', function(data){
+        console.log('receive private message');
+        console.log(data);
+        var src_user = data['src_user'];
+        var dest_user = data['dest_user'];
+        io.sockets.emit('privateMessage_rsp', data);
+    });
 });
 
 var Sequelize = require('sequelize'),
@@ -390,4 +405,3 @@ Array.prototype.contains = function(needle) {
     }
     return -1;
 }
-

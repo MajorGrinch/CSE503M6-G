@@ -70,7 +70,6 @@ function owInitRoomMembers(data) {
         } else {
             $('#room_members').append('<div class="card"><div class="card-block"><div class="member"><h5>' + member + '</h5></div></div></div>');
         }
-
     });
 }
 
@@ -93,8 +92,8 @@ $('#public_rooms').on('click', '.card', function() {
     var roomlist = $(this).parent('#public_rooms').find('.card');
     var privateroomlist = $('#private_rooms').find('.card');
     privateroomlist.css('background-color', '#373C38'); //white
-    roomlist.css('background-color', '#373C38');  //white
-    $(this).css('background-color', 'gray');  //gray
+    roomlist.css('background-color', '#373C38'); //white
+    $(this).css('background-color', 'gray'); //gray
     $('#room_members').empty();
     $('#chat_log').empty();
     console.log('You are entering room: ' + public_room_target);
@@ -119,7 +118,7 @@ $('#private_rooms').on('click', '.card', function() {
     publicroomlist.css('background-color', '#373C38'); //white
     var roomlist = $(this).parent('#private_rooms').find('.card');
     roomlist.css('background-color', '#373C38'); //white
-    $(this).css('background-color', 'gray');  //gray
+    $(this).css('background-color', 'gray'); //gray
     // console.log(roomlist);
     $('#enter_private_room_modal').modal('show');
     $('#login_wrapper').find('h6').remove();
@@ -128,38 +127,42 @@ $('#private_rooms').on('click', '.card', function() {
 });
 
 function enterPrivateRoom(roomid, username, password) {
-   var payload = {roomid: roomid, user: username, password: password}; 
-   socketio.emit('enterPrivateRoom', payload);
+    var payload = { roomid: roomid, user: username, password: password };
+    socketio.emit('enterPrivateRoom', payload);
 }
 
 $('#enter_private_room_btn').click(function() {
     console.log('enter private room btn');
     var password = $('#private_room_password').val();
-    if(private_room_target != ''){
-    	enterPrivateRoom(private_room_target, curr_user, password);
-    }    
+    if (private_room_target != '') {
+        enterPrivateRoom(private_room_target, curr_user, password);
+    }
     $('#enter_private_room_modal').modal('hide');
 });
 
-socketio.on("enterPrivateRoom_rsp", function(data){
-	if(data['roomid'] != private_room_target){
-		return;
-	}
-	if(data['owner'] == curr_user){
-		owInitRoomMembers(data['data']);
-	}else{
-		initRoomMembers(data['data']);
-	}
-	curr_room = data['roomid'];
-	$('#chat_log').empty();
+socketio.on("enterPrivateRoom_rsp", function(data) {
+    if (data['roomid'] != private_room_target) {
+        return;
+    }
+    if (data['owner'] == curr_user) {
+        owInitRoomMembers(data['data']);
+    } else {
+        initRoomMembers(data['data']);
+    }
+    curr_room = data['roomid'];
+    $('#chat_log').empty();
+    $('#send_btn').unbind('click');
+    $('#send_btn').click(function() {
+        sendMessage(curr_room);
+    });
 });
 
-socketio.on("enterPrivateRoomFail_rsp", function(data){
-	console.log("enter private room failed.");
-	console.log(data);
-	if(data['trgt_user'] == curr_user){
-		alert(data['data']);
-	}
+socketio.on("enterPrivateRoomFail_rsp", function(data) {
+    console.log("enter private room failed.");
+    console.log(data);
+    if (data['trgt_user'] == curr_user) {
+        alert(data['data']);
+    }
 });
 
 function sendMessage(room) {
@@ -169,13 +172,18 @@ function sendMessage(room) {
     $('#message_input').val('');
 }
 
-$('#send_btn').click(function() {
-    sendMessage(curr_room);
-})
-
+function sendPrivateMessage(src_user, dest_user) {
+    var msg = $('#message_input').val();
+    console.log(msg);
+    console.log('private message');
+    socketio.emit('privateMessage', { message: msg, src_user: src_user, dest_user: dest_user });
+    $('#message_input').val('');
+}
 
 socketio.on("message_to_client", function(data) {
+    console.log('message to client');
     console.log(data);
+    console.log(curr_room);
     if (data['roomid'] == curr_room && data['room_member'].contains(curr_user) != -1) {
         //Append an HR thematic break and the escaped HTML of the new message
         document.getElementById("chat_log").appendChild(document.createElement("hr"));
@@ -230,7 +238,11 @@ socketio.on("enterPublicRoom_rsp", function(data) {
     } else {
         initRoomMembers(data['data']);
     }
-    curr_room = data['roomid'];  
+    curr_room = data['roomid'];
+    $('#send_btn').unbind('click');
+    $('#send_btn').click(function() {
+        sendMessage(curr_room);
+    });
 });
 
 socketio.on("enterPublicRoomFail_rsp", function(data) {
@@ -285,7 +297,7 @@ socketio.on("createPrivateRoom_rsp", function(data) {
 
 $('#room_members').on('click', '.kick_user', function() {
     console.log('kick user');
-    var kick_user = $(this).parent('.card-block').find('h5').text();
+    var kick_user = $(this).parent('.member').find('h5').text();
     console.log(kick_user);
     var payload = { trgt_user: kick_user, roomid: curr_room };
     console.log(payload);
@@ -294,12 +306,70 @@ $('#room_members').on('click', '.kick_user', function() {
 
 $('#room_members').on('click', '.kb_user', function() {
     console.log('kick & block user');
-    var kb_user = $(this).parent('.card-block').find('h5').text();
+    var kb_user = $(this).parent('.member').find('h5').text();
     console.log(kb_user);
     var payload = { trgt_user: kb_user, roomid: curr_room };
     socketio.emit('kb_user', payload);
 });
 
+
+$('#room_members').on('dblclick', '.card', function() {
+    var member = $(this).find('h5').text();
+    console.log(member);
+    console.log('double click on ' + member);
+    if(member == curr_user){
+        return;
+    }
+    var payload = { src_user: curr_user, dest_user: member };
+    socketio.emit('pri_Msg_req', payload);
+});
+
+socketio.on('pri_Msg_req_rsp', function(data) {
+    if (data['dest_user'] == curr_user) {
+        $('#private_users').append('<div class="card"><div class="card-block"><div class="room"><h5>' + data['src_user'] + '</h5></div></div></div>');
+    }
+    if (data['src_user'] == curr_user) {
+        $('#private_users').append('<div class="card"><div class="card-block"><div class="room"><h5>' + data['dest_user'] + '</h5></div></div></div>');
+    }
+});
+
+//enter private message
+$('#private_users').on('click', '.card', function() {
+    console.log('enter private message');
+    var user = $(this).find("h5").text();
+    public_room_target = '';
+    private_room_target = '';
+    var publicroomlist = $('#public_rooms').find('.card');
+    var privateroomlist = $('#private_rooms').find('.card');
+    privateroomlist.css('background-color', '#373C38'); //white
+    publicroomlist.css('background-color', '#373C38'); //white
+    $(this).css('background-color', 'gray'); //gray
+    $('#room_members').empty();
+    $('#chat_log').empty();
+    $('#login_wrapper').find('h6').remove();
+    //Tell users which room they have entered
+    $('#login_wrapper').append('<h6>Chatting with' + user + '</h6>');
+    curr_room = user;
+    $('#send_btn').unbind('click');
+    $('#send_btn').click(function() {
+        sendPrivateMessage(curr_user, user);
+    });
+});
+
+socketio.on('privateMessage_rsp', function(data){
+    console.log(data);
+    if((data['dest_user'] == curr_user && data['src_user'] == curr_room )|| (data['src_user'] == curr_user && data['dest_user'] == curr_room)){
+        document.getElementById("chat_log").appendChild(document.createElement("hr"));
+        document.getElementById("chat_log").appendChild(document.createTextNode(data['src_user']));
+        $('#chat_log').append('<br/>');
+        document.getElementById("chat_log").appendChild(document.createTextNode(data['message']));
+        chat2Bottom();
+    }
+});
+
+function connectPrivateUser() {
+    console.log('connect private user');
+}
 Array.prototype.contains = function(needle) {
     for (i in this) {
         if (this[i] == needle) return i;
